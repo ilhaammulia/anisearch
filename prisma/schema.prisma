@@ -12,7 +12,7 @@ datasource db {
 
 model anime {
   id        Int      @id @default(autoincrement())
-  title     String
+  title     String   @unique
   type      String
   episode   Int
   status    String
@@ -24,7 +24,7 @@ model anime {
 
 model genre {
   id       Int    @id @default(autoincrement())
-  anime    anime  @relation(fields: [id_anime], references: [id])
+  anime    anime  @relation(fields: [id_anime], references: [id], onDelete: Cascade)
   id_anime Int
   name     String
 }
