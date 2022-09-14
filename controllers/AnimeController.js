@@ -50,6 +50,8 @@ export const getAnimeByFilter = async (req, res) => {
 
 export const createAnime = (req, res) => {
   const { title, type, episode, status, season, year, genres } = req.body;
+  if (genres) {
+  }
 };
 
 export const updateAnime = (req, res) => {};
