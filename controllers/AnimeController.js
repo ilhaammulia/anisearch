@@ -48,9 +48,27 @@ export const getAnimeByFilter = async (req, res) => {
   }
 };
 
-export const createAnime = (req, res) => {
+export const createAnime = async (req, res) => {
   const { title, type, episode, status, season, year, genres } = req.body;
-  if (genres) {
+  try {
+    const response = await prisma.anime.create({
+      title: title,
+      type: String(type).toLowerCase(),
+      episode: episode,
+      status: String(status).toLowerCase(),
+      season: String(season).toLowerCase(),
+      year: Number(year),
+      genres: {
+        create: genres.forEach((genre) => {
+          {
+            name: genre;
+          }
+        }),
+      },
+    });
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
