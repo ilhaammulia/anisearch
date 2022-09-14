@@ -10,10 +10,7 @@ import {
 const router = express.Router();
 
 router.get("/animes", getAnimes);
-router.get(
-  "/animes/:title?/:type?/:status?/:season?/:year?/:genre?",
-  getAnimeByFilter
-);
+router.get("/animes/list", getAnimeByFilter);
 router.post("/animes", createAnime);
 router.patch("/animes/:id", updateAnime);
 router.delete("/animes/:id", deleteAnime);
