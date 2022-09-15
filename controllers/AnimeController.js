@@ -3,8 +3,14 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const getAnimes = async (req, res) => {
+  const count = req.query.count;
+  if (!count) {
+    res.status(400).json({ message: "Missing count" });
+    return;
+  }
   try {
     const response = await prisma.anime.findMany({
+      take: Number(req.query.count),
       select: {
         id: true,
         title: true,
@@ -32,24 +38,20 @@ export const getAnimeByFilter = async (req, res) => {
               ? String(req.query.title).toLowerCase()
               : undefined,
         },
-        type: {
-          contains:
-            req.query.type != null
-              ? String(req.query.type).toLowerCase()
-              : undefined,
-        },
-        status: {
-          contains:
-            req.query.status != null
-              ? String(req.query.status).toLowerCase()
-              : undefined,
-        },
-        season: {
-          contains:
-            req.query.season != null
-              ? String(req.query.season).toLowerCase()
-              : undefined,
-        },
+        type:
+          req.query.type != null
+            ? String(req.query.type).toLowerCase()
+            : undefined,
+        episode:
+          req.query.episode != null ? Number(req.query.episode) : undefined,
+        status:
+          req.query.status != null
+            ? String(req.query.status).toLowerCase()
+            : undefined,
+        season:
+          req.query.season != null
+            ? String(req.query.season).toLowerCase()
+            : undefined,
         year: req.query.year != null ? parseInt(req.query.year) : undefined,
       },
       select: {
