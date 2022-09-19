@@ -3,14 +3,13 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const getAnimes = async (req, res) => {
-  const count = req.query.count;
-  if (!count) {
-    res.status(400).json({ message: "Missing count" });
-    return;
-  }
+  const count = Number(req.query.count) || 10;
+  const lastCount = Number(req.query.lastCount) || 0;
+  const skip = lastCount + count;
   try {
     const response = await prisma.anime.findMany({
-      take: Number(req.query.count),
+      take: count,
+      skip: lastCount,
       select: {
         id: true,
         title: true,
@@ -22,15 +21,25 @@ export const getAnimes = async (req, res) => {
         genres: true,
       },
     });
-    res.status(200).json(response);
+    const result = {
+      data: response,
+      lastCount: skip,
+      hasMore: response.length < count ? false : true,
+    };
+    res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
 export const getAnimeByFilter = async (req, res) => {
+  const count = Number(req.query.count) || 10;
+  const lastCount = Number(req.query.lastCount) || 0;
+  const skip = lastCount + count;
   try {
     const response = await prisma.anime.findMany({
+      take: count,
+      skip: lastCount,
       where: {
         title: {
           contains:
@@ -52,7 +61,7 @@ export const getAnimeByFilter = async (req, res) => {
           req.query.season != null
             ? String(req.query.season).toLowerCase()
             : undefined,
-        year: req.query.year != null ? parseInt(req.query.year) : undefined,
+        year: req.query.year != null ? Number(req.query.year) : undefined,
       },
       select: {
         id: true,
@@ -65,7 +74,12 @@ export const getAnimeByFilter = async (req, res) => {
         genres: true,
       },
     });
-    res.status(200).json(response);
+    const result = {
+      data: response,
+      lastCount: skip,
+      hasMore: response.length < count ? false : true,
+    };
+    res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -125,10 +139,6 @@ export const updateAnime = async (req, res) => {
         status: String(status).toLowerCase(),
         season: String(season).toLowerCase(),
         year: Number(year),
-        genres: {
-          deleteMany: {},
-          create: genreList,
-        },
       },
     });
     res.status(200).json(response);
